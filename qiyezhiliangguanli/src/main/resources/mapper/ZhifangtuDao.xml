@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhifangtuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.gongzuorenyuan_id as gongzuorenyuanId
+        ,a.zhifangtu_uuid_number as zhifangtuUuidNumber
+        ,a.zhifangtu_name as zhifangtuName
+        ,a.zhifangtu_types as zhifangtuTypes
+        ,a.zhifangtu_file as zhifangtuFile
+        ,a.zhifangtu_time as zhifangtuTime
+        ,a.zhifangtu_content as zhifangtuContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhifangtuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,gongzuorenyuan.gongzuorenyuan_uuid_number as gongzuorenyuanUuidNumber
+        ,gongzuorenyuan.gongzuorenyuan_name as gongzuorenyuanName
+        ,gongzuorenyuan.gongzuorenyuan_phone as gongzuorenyuanPhone
+        ,gongzuorenyuan.gongzuorenyuan_id_number as gongzuorenyuanIdNumber
+        ,gongzuorenyuan.gongzuorenyuan_photo as gongzuorenyuanPhoto
+        ,gongzuorenyuan.jianyangongzhong_types as jianyangongzhongTypes
+        ,gongzuorenyuan.gongzuorenyuan_email as gongzuorenyuanEmail
+        ,gongzuorenyuan.jinyong_types as jinyongTypes
+
+        FROM zhifangtu  a
+        left JOIN gongzuorenyuan gongzuorenyuan ON a.gongzuorenyuan_id = gongzuorenyuan.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.gongzuorenyuanId != null and params.gongzuorenyuanId != ''">
+                and (
+                    a.gongzuorenyuan_id = #{params.gongzuorenyuanId}
+                )
+            </if>
+            <if test=" params.zhifangtuUuidNumber != '' and params.zhifangtuUuidNumber != null and params.zhifangtuUuidNumber != 'null' ">
+                and a.zhifangtu_uuid_number like CONCAT('%',#{params.zhifangtuUuidNumber},'%')
+            </if>
+            <if test=" params.zhifangtuName != '' and params.zhifangtuName != null and params.zhifangtuName != 'null' ">
+                and a.zhifangtu_name like CONCAT('%',#{params.zhifangtuName},'%')
+            </if>
+            <if test="params.zhifangtuTypes != null and params.zhifangtuTypes != ''">
+                and a.zhifangtu_types = #{params.zhifangtuTypes}
+            </if>
+            <if test=" params.zhifangtuTimeStart != '' and params.zhifangtuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhifangtu_time) >= UNIX_TIMESTAMP(#{params.zhifangtuTimeStart}) ]]>
+            </if>
+            <if test=" params.zhifangtuTimeEnd != '' and params.zhifangtuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhifangtu_time) <= UNIX_TIMESTAMP(#{params.zhifangtuTimeEnd}) ]]>
+            </if>
+            <if test="params.zhifangtuTime != null and params.zhifangtuTime != ''">
+                and a.zhifangtu_time = #{params.zhifangtuTime}
+            </if>
+            <if test=" params.zhifangtuContent != '' and params.zhifangtuContent != null and params.zhifangtuContent != 'null' ">
+                and a.zhifangtu_content like CONCAT('%',#{params.zhifangtuContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+
+                <!-- 判断工作人员的id不为空 -->
+            <if test=" params.gongzuorenyuanIdNotNull != '' and params.gongzuorenyuanIdNotNull != null and params.gongzuorenyuanIdNotNull != 'null' ">
+                and a.gongzuorenyuan_id IS NOT NULL
+            </if>
+            <if test=" params.gongzuorenyuanUuidNumber != '' and params.gongzuorenyuanUuidNumber != null and params.gongzuorenyuanUuidNumber != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_uuid_number like CONCAT('%',#{params.gongzuorenyuanUuidNumber},'%')
+            </if>
+            <if test=" params.gongzuorenyuanName != '' and params.gongzuorenyuanName != null and params.gongzuorenyuanName != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_name like CONCAT('%',#{params.gongzuorenyuanName},'%')
+            </if>
+            <if test=" params.gongzuorenyuanPhone != '' and params.gongzuorenyuanPhone != null and params.gongzuorenyuanPhone != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_phone like CONCAT('%',#{params.gongzuorenyuanPhone},'%')
+            </if>
+            <if test=" params.gongzuorenyuanIdNumber != '' and params.gongzuorenyuanIdNumber != null and params.gongzuorenyuanIdNumber != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_id_number like CONCAT('%',#{params.gongzuorenyuanIdNumber},'%')
+            </if>
+            <if test="params.jianyangongzhongTypes != null  and params.jianyangongzhongTypes != ''">
+                and gongzuorenyuan.jianyangongzhong_types = #{params.jianyangongzhongTypes}
+            </if>
+
+            <if test=" params.gongzuorenyuanEmail != '' and params.gongzuorenyuanEmail != null and params.gongzuorenyuanEmail != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_email like CONCAT('%',#{params.gongzuorenyuanEmail},'%')
+            </if>
+            <if test="params.jinyongTypes != null  and params.jinyongTypes != ''">
+                and gongzuorenyuan.jinyong_types = #{params.jinyongTypes}
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

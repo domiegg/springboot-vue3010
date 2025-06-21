@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.KongzhituchushihuaDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.gongzuorenyuan_id as gongzuorenyuanId
+        ,a.kongzhituchushihua_uuid_number as kongzhituchushihuaUuidNumber
+        ,a.kongzhituchushihua_name as kongzhituchushihuaName
+        ,a.kongzhituchushihua_types as kongzhituchushihuaTypes
+        ,a.kongzhituchushihua_qian_file as kongzhituchushihuaQianFile
+        ,a.kongzhituchushihua_hou_file as kongzhituchushihuaHouFile
+        ,a.kongzhituchushihua_time as kongzhituchushihuaTime
+        ,a.kongzhituchushihua_content as kongzhituchushihuaContent
+        ,a.kongzhituchushihua_beizhu_content as kongzhituchushihuaBeizhuContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.KongzhituchushihuaView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,gongzuorenyuan.gongzuorenyuan_uuid_number as gongzuorenyuanUuidNumber
+        ,gongzuorenyuan.gongzuorenyuan_name as gongzuorenyuanName
+        ,gongzuorenyuan.gongzuorenyuan_phone as gongzuorenyuanPhone
+        ,gongzuorenyuan.gongzuorenyuan_id_number as gongzuorenyuanIdNumber
+        ,gongzuorenyuan.gongzuorenyuan_photo as gongzuorenyuanPhoto
+        ,gongzuorenyuan.jianyangongzhong_types as jianyangongzhongTypes
+        ,gongzuorenyuan.gongzuorenyuan_email as gongzuorenyuanEmail
+        ,gongzuorenyuan.jinyong_types as jinyongTypes
+
+        FROM kongzhituchushihua  a
+        left JOIN gongzuorenyuan gongzuorenyuan ON a.gongzuorenyuan_id = gongzuorenyuan.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.gongzuorenyuanId != null and params.gongzuorenyuanId != ''">
+                and (
+                    a.gongzuorenyuan_id = #{params.gongzuorenyuanId}
+                )
+            </if>
+            <if test=" params.kongzhituchushihuaUuidNumber != '' and params.kongzhituchushihuaUuidNumber != null and params.kongzhituchushihuaUuidNumber != 'null' ">
+                and a.kongzhituchushihua_uuid_number like CONCAT('%',#{params.kongzhituchushihuaUuidNumber},'%')
+            </if>
+            <if test=" params.kongzhituchushihuaName != '' and params.kongzhituchushihuaName != null and params.kongzhituchushihuaName != 'null' ">
+                and a.kongzhituchushihua_name like CONCAT('%',#{params.kongzhituchushihuaName},'%')
+            </if>
+            <if test="params.kongzhituchushihuaTypes != null and params.kongzhituchushihuaTypes != ''">
+                and a.kongzhituchushihua_types = #{params.kongzhituchushihuaTypes}
+            </if>
+            <if test=" params.kongzhituchushihuaTimeStart != '' and params.kongzhituchushihuaTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.kongzhituchushihua_time) >= UNIX_TIMESTAMP(#{params.kongzhituchushihuaTimeStart}) ]]>
+            </if>
+            <if test=" params.kongzhituchushihuaTimeEnd != '' and params.kongzhituchushihuaTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.kongzhituchushihua_time) <= UNIX_TIMESTAMP(#{params.kongzhituchushihuaTimeEnd}) ]]>
+            </if>
+            <if test="params.kongzhituchushihuaTime != null and params.kongzhituchushihuaTime != ''">
+                and a.kongzhituchushihua_time = #{params.kongzhituchushihuaTime}
+            </if>
+            <if test=" params.kongzhituchushihuaContent != '' and params.kongzhituchushihuaContent != null and params.kongzhituchushihuaContent != 'null' ">
+                and a.kongzhituchushihua_content like CONCAT('%',#{params.kongzhituchushihuaContent},'%')
+            </if>
+            <if test=" params.kongzhituchushihuaBeizhuContent != '' and params.kongzhituchushihuaBeizhuContent != null and params.kongzhituchushihuaBeizhuContent != 'null' ">
+                and a.kongzhituchushihua_beizhu_content like CONCAT('%',#{params.kongzhituchushihuaBeizhuContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+
+                <!-- 判断工作人员的id不为空 -->
+            <if test=" params.gongzuorenyuanIdNotNull != '' and params.gongzuorenyuanIdNotNull != null and params.gongzuorenyuanIdNotNull != 'null' ">
+                and a.gongzuorenyuan_id IS NOT NULL
+            </if>
+            <if test=" params.gongzuorenyuanUuidNumber != '' and params.gongzuorenyuanUuidNumber != null and params.gongzuorenyuanUuidNumber != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_uuid_number like CONCAT('%',#{params.gongzuorenyuanUuidNumber},'%')
+            </if>
+            <if test=" params.gongzuorenyuanName != '' and params.gongzuorenyuanName != null and params.gongzuorenyuanName != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_name like CONCAT('%',#{params.gongzuorenyuanName},'%')
+            </if>
+            <if test=" params.gongzuorenyuanPhone != '' and params.gongzuorenyuanPhone != null and params.gongzuorenyuanPhone != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_phone like CONCAT('%',#{params.gongzuorenyuanPhone},'%')
+            </if>
+            <if test=" params.gongzuorenyuanIdNumber != '' and params.gongzuorenyuanIdNumber != null and params.gongzuorenyuanIdNumber != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_id_number like CONCAT('%',#{params.gongzuorenyuanIdNumber},'%')
+            </if>
+            <if test="params.jianyangongzhongTypes != null  and params.jianyangongzhongTypes != ''">
+                and gongzuorenyuan.jianyangongzhong_types = #{params.jianyangongzhongTypes}
+            </if>
+
+            <if test=" params.gongzuorenyuanEmail != '' and params.gongzuorenyuanEmail != null and params.gongzuorenyuanEmail != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_email like CONCAT('%',#{params.gongzuorenyuanEmail},'%')
+            </if>
+            <if test="params.jinyongTypes != null  and params.jinyongTypes != ''">
+                and gongzuorenyuan.jinyong_types = #{params.jinyongTypes}
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
